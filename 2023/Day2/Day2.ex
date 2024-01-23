@@ -11,7 +11,7 @@ defmodule Day2 do
 
   def filter_games(list) do
     {elements, index} = list
-    Enum.member?(elements, {0, :false})
+    Enum.any?(elements, fn {_n, status} -> status == :false end)
   end
 
   def parse_input(file) do
@@ -40,7 +40,7 @@ defmodule Day2 do
   def verify_color([n | c]) when n < 13 and c == ["red"|[]], do: {n, :true}
   def verify_color([n | c]) when n < 14 and c == ["green"|[]], do: {n, :true}
   def verify_color([n | c]) when n < 15 and c == ["blue"|[]], do: {n, :true}
-  def verify_color([_ | _]), do: {0, false}
+  def verify_color([n | _]), do: {n, false}
 
 
 
