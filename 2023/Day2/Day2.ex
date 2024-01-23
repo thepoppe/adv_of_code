@@ -5,13 +5,13 @@ defmodule Day2 do
     games = Enum.map(res,  &verify_game/1)
     indexed = Enum.with_index(games)
     valid_games =  Enum.reject(indexed, &filter_games/1)
-    sum = Enum.reduce(valid_games, 0, fn {value, index}, acc -> acc + (index+1) end)
+    sum = Enum.reduce(valid_games, 0, fn {_, index}, acc -> acc + (index+1) end)
     {:done, sum}
   end
 
   def filter_games(list) do
-    {elements, index} = list
-    Enum.any?(elements, fn {_n, status} -> status == :false end)
+    {elements, _} = list
+    Enum.any?(elements, fn {_, status} -> status == :false end)
   end
 
   def parse_input(file) do
