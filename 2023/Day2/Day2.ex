@@ -1,15 +1,17 @@
 defmodule Day2 do
   def main() do
-    file = "small_sample.txt"
+    file = "task1_sample.txt"
     {:ok, res} = parse_input(file)
     games = Enum.map(res,  &verify_game/1)
-    valid_games =  Enum.reject(games, &filter_games/1)
-    IO.inspect(valid_games)
-    :ok
+    indexed = Enum.with_index(games)
+    valid_games =  Enum.reject(indexed, &filter_games/1)
+    sum = Enum.reduce(valid_games, 0, fn {value, index}, acc -> acc + (index+1) end)
+    {:done, sum}
   end
 
   def filter_games(list) do
-    Enum.member?(list, {0, :false})
+    {elements, index} = list
+    Enum.member?(elements, {0, :false})
   end
 
   def parse_input(file) do
@@ -35,9 +37,9 @@ defmodule Day2 do
     verify_color(res)
   end
 
-  def verify_color([n | c]) when n < 12 and c == ["red"|[]], do: {n, :true}
-  def verify_color([n | c]) when n < 13 and c == ["green"|[]], do: {n, :true}
-  def verify_color([n | c]) when n < 14 and c == ["blue"|[]], do: {n, :true}
+  def verify_color([n | c]) when n < 13 and c == ["red"|[]], do: {n, :true}
+  def verify_color([n | c]) when n < 14 and c == ["green"|[]], do: {n, :true}
+  def verify_color([n | c]) when n < 15 and c == ["blue"|[]], do: {n, :true}
   def verify_color([_ | _]), do: {0, false}
 
 
