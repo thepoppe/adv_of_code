@@ -1,0 +1,14 @@
+Thinking of the textinput as a grid. With a language without an array we ned a way to navigate
+the grid. each row will need an row identifier and each value gets a col identifier.
+
+Parse:
+Step 1: read the file, we need the whole file as we need to search the previuous and next line.
+Step 2: split each row into array. Attach an increment row number.
+Step 3: split every character and add a col number to each object
+
+Search:
+Start with row 0 and and jump until a number is found.
+
+Verify validity:
+When a number is found, look left look right while counting the length. 
+IF no symbol on left and right, verify validity on a row above and under on cols -1 to +1
