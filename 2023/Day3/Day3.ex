@@ -1,9 +1,8 @@
 defmodule Day3 do
 
   def main do
-    input = File.read!("sample.txt") |> String.split("\n")
+    input = File.read!("input.txt") |> String.split("\n")
     {:parsed, grid} = parse_input(input)
-    #IO.inspect(grid)
     sum = iterate_rows(grid, 0)
     IO.puts("Sum: #{sum}")
     {:ok, sum}
@@ -35,7 +34,19 @@ defmodule Day3 do
   end
 
 
-  def iterate_row(_, [], _,_, sum) do sum end
+  def iterate_row(_, [], _, _, sum)  do sum end
+  def iterate_row(full_list, [{num, col}|[]], row, number, sum) do
+    case Regex.match?(~r/\d/, num) do
+      true -> verify_number(full_list, number <> num, row, col-1, sum)
+      false ->
+        if  String.length(number) > 0 do
+          verify_number(full_list, number, row, col-1, sum)
+        else
+          sum
+        end
+    end
+  end
+
   def iterate_row(full_list, [{num, col} | t], row, number, sum) do
     case Regex.match?(~r/\d/, num) do
       true -> iterate_row(full_list, t, row, number <> num, sum)
