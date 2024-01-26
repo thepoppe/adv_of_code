@@ -8,6 +8,7 @@ defmodule Day3 do
     {:ok, sum}
   end
 
+
   def parse_input(text) do
     input = Enum.with_index(text)
     input = Enum.map(input, fn list ->
@@ -26,7 +27,6 @@ defmodule Day3 do
     sum = iterate_row(full_list, h, row_num, "", sum)
     iterate_rows(full_list, t, sum)
   end
-
   def iterate_rows(list, sum) do
     [{h, row_num}|t] = list
     sum = iterate_row(list, h, row_num, "", sum)
@@ -34,19 +34,10 @@ defmodule Day3 do
   end
 
 
-  def iterate_row(_, [], _, _, sum)  do sum end
-  def iterate_row(full_list, [{num, col}|[]], row, number, sum) do
-    case Regex.match?(~r/\d/, num) do
-      true -> verify_number(full_list, number <> num, row, col-1, sum)
-      false ->
-        if  String.length(number) > 0 do
-          verify_number(full_list, number, row, col-1, sum)
-        else
-          sum
-        end
-    end
+  def iterate_row(_, [], _, number, sum) when number == ""  do sum end
+  def iterate_row([{list,rows}|rest], [], row, number, sum)  do
+    verify_number([{list,rows}|rest], number, row, length(list)-1, sum)
   end
-
   def iterate_row(full_list, [{num, col} | t], row, number, sum) do
     case Regex.match?(~r/\d/, num) do
       true -> iterate_row(full_list, t, row, number <> num, sum)
@@ -59,6 +50,7 @@ defmodule Day3 do
         end
       end
   end
+
 
   def verify_number(full_list, number, row, last_index, sum) do
     first_index = last_index - String.length(number) +1
@@ -75,6 +67,14 @@ defmodule Day3 do
   end
 
 
+  def verify_same([{list, row}|_], row, ahead, behind)when behind >= length(list) do
+    {potential_symb_infront, _} = Enum.at(list, ahead)
+    Regex.match?(~r/[^a-zA-Z0-9\s.]/, potential_symb_infront)
+  end
+  def verify_same([{list, row}|_], row, ahead, behind)when ahead < 0 do
+    {potential_symb_behind, _} = Enum.at(list, behind)
+    Regex.match?(~r/[^a-zA-Z0-9\s.]/, potential_symb_behind)
+  end
   def verify_same([{list, row}|_], row, ahead, behind) do
     {potential_symb_infront, _} = Enum.at(list, ahead)
     {potential_symb_behind, _} = Enum.at(list, behind)
