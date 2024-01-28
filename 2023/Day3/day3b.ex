@@ -1,6 +1,6 @@
 defmodule Task2 do
   def main do
-    input = File.read!("case3.txt") |> String.split("\n")
+    input = File.read!("case2.txt") |> String.split("\n")
     {:parsed, grid} = Day3.parse_input(input)
     sum = iterate_rows(grid,0)
     {:ok, sum}
@@ -39,34 +39,34 @@ defmodule Task2 do
 
   def verify_number(full_list, number, row, last_index, sum) do
     first_index = last_index - String.length(number) +1
+    #case1
     same_is_adjacent = verify_same(full_list, row, last_index+1)
-
+    #case2
     prev_is_adjacent = verify_around(full_list, row-1, first_index, last_index+1);
-    #below_is_adjacent = verify_around(full_list, row+1, first_index-1, last_index+1);
-    #IO.inspect("same: #{inspect(same_is_adjacent)}")
-    IO.inspect("prev: #{inspect(prev_is_adjacent)}")
-    #IO.inspect(above_is_adjacent)
+    #case3
+    next_is_adjacent = verify_around(full_list, row+1, first_index, last_index+1)
+    IO.inspect("NEXT IS ADJACENT:#{inspect(next_is_adjacent)}")
 
-    case {same_is_adjacent, prev_is_adjacent, nil} do
+    #OBS THIS CASE OPERATOR MAY LEAVE THINGS OUT?????
+    case {same_is_adjacent, prev_is_adjacent, next_is_adjacent} do
       {nil, nil, nil} -> sum
       {{:same, true}, _, _} ->
         first_num = String.to_integer(number)
         second_num = String.to_integer(find_second_number(full_list, row, last_index+1, :same))
-
-        IO.inspect("sum1: #{sum}, first num1: #{first_num}, second num1: #{second_num}")
+        #IO.inspect("sum1: #{sum}, first num1: #{first_num}, second num1: #{second_num}")
         sum + (first_num*second_num)
 
       {_, {row, col, true}, _} ->
         first_num = String.to_integer(number)
-        second_num =  String.to_integer(find_second_number(full_list, row, col, :around))
-        IO.inspect("sum2: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
+        second_num =  String.to_integer(find_second_number(full_list, row, col, :prev))
+        #IO.inspect("sum2: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
         sum + (first_num*second_num)
-      #{_, _, some}->
-      #  first_num = String.to_integer(number)
-      #  IO.inspect(some)
-      #  second_num =  String.to_integer(some)
-      #  IO.inspect("sum3: #{sum}, first num3: #{first_num}, second num3: #{second_num}")
-      #  sum + (first_num*second_num)
+
+      {_, _, {row, col, true}}->
+        first_num = String.to_integer(number)
+        second_num =  String.to_integer(find_second_number(full_list, row, col, :next))
+        #IO.inspect("sum3: #{sum}, first num3: #{first_num}, second num3: #{second_num}")
+        sum + (first_num*second_num)
     end
   end
 
@@ -101,17 +101,14 @@ defmodule Task2 do
 
 
 
-
-
-
   def find_second_number(list, row, col, :same) do
     same_row = iterate_until(list, row)
     next_row = iterate_until(list, row+1)
     prev_row =iterate_until(list, row-1)
-    num_in_same_row = find_num_inline(:same, same_row, col+1)
-    num_in_prev_row = find_num_around(:same, prev_row, col)
-    num_in_next_row = find_num_around(:same, next_row, col)
-    IO.inspect(":same, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
+    num_in_same_row = find_nums_right(same_row, col+1)
+    num_in_prev_row = search_row( prev_row, col, :right)
+    num_in_next_row = search_row( next_row, col, :right)
+
     case {num_in_same_row, num_in_prev_row, num_in_next_row} do
       {"","",""} -> "0"
       {_,"",""} -> num_in_same_row
@@ -121,92 +118,68 @@ defmodule Task2 do
     end
   end
 
-  def find_second_number(list, row, col, :around) do
+  def find_second_number(list, row, col, :prev) do
     same_row = iterate_until(list, row)
-    next_row = iterate_until(list, row+1)
     prev_row =iterate_until(list, row-1)
-    num_in_same_row = find_num_inline(:around, same_row, col)
-    num_in_prev_row = find_num_around(:around, prev_row, col)
+    next_row = iterate_until(list, row+1)
+
+    num_in_same_row = find_nums_right(same_row, col+1)
+    num_in_prev_row = search_row(prev_row, col, :right)
     num_in_next_row = find_nums_right(next_row, col+1)
-    IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
+
+    #IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
     case {num_in_same_row, num_in_prev_row, num_in_next_row} do
       {"","",""} -> "0"
       {_,"",""} -> num_in_same_row
       {"", _, ""} -> num_in_prev_row
       {"","", _} -> num_in_next_row
-      _ -> {:error, "weird things happening in find second number :around"}
+      _ -> {:error, "weird things happening in find second number :prev"}
     end
-
-  end
-
-  def find_num_inline(_,[],_) do "" end
-  def find_num_inline(:same,list, col)when col >= length(list) do "" end
-  def find_num_inline(:same, list, behind) do
-    {char, _} = Enum.at(list, behind)
-    if Regex.match?(~r/\d/, char) do
-      char <> find_nums_right(list, behind+1)
-    else
-      ""
-    end
-  end
-  def find_num_inline(:around, list, col)when col == length(list)-1 do
-    {char_to_left, _} = Enum.at(list, col-1)
-    if Regex.match?(~r/\d/, char_to_left) do
-      find_nums_left(list, col-1) <> char_to_left
-    else
-      ""
-    end
-  end
-  def find_num_inline(:around, list, col)when col == 0 do
-    {char_to_right, _} = Enum.at(list, col+1)
-    if Regex.match?(~r/\d/, char_to_right) do
-      char_to_right <> find_nums_right(list, col+1)
-    else
-      ""
-    end
-  end
-  def find_num_inline(:around, list, col) do
-    {char_ahead, _} = Enum.at(list, col-1)
-    {char_behind, _} = Enum.at(list, col+1)
-    case {Regex.match?(~r/\d/, char_ahead), Regex.match?(~r/\d/, char_behind)} do
-      {false, false} -> ""
-      {true, false} -> find_nums_left(list, col-2) <> char_ahead
-      {false, true} -> char_behind <> find_nums_right(list, col+2)
-      {true, true} -> {:error, "inline true true  ex. 24*24 should not be handled here"}
-    end
-#    if Regex.match?(~r/\d/, char) do
-#    char <> find_nums_right(list, col+1)
-#    else
-#      ""
-#    end
   end
 
+  def find_second_number(list, row, col, :next) do
+    same_row = iterate_until(list, row)
+    prev_row =iterate_until(list, row-1)
+    next_row = iterate_until(list, row+1)
 
-  def find_num_around(_,[], _)  do "" end
-  def find_num_around(_,list, col) when col >= length(list) do "" end
-  def find_num_around(:same ,list, col) do
-    {char, _} = Enum.at(list, col)
-    if Regex.match?(~r/\d/, char) do
-      find_nums_left(list, col-1) <> char <> find_nums_right(list, col+1)
+    num_in_same_row = case {find_nums_left(same_row, col-1), find_nums_right(same_row, col+1)} do
+      {"", ""} -> ""
+      {num, ""} -> num
+      {"", num} -> num
+    end
+    num_in_prev_row = find_nums_right(prev_row, col+1)
+    num_in_next_row = search_row(next_row, col, :both) #NEW
+
+    case {num_in_same_row, num_in_prev_row, num_in_next_row} do
+      {"","",""} -> "0"
+      {_,"",""} -> num_in_same_row
+      {"", _, ""} -> num_in_prev_row
+      {"","", _} -> num_in_next_row
+      _ -> {:error, "weird things happening in find second number :next"}
+    end
+  end
+
+  defp search_row([], _, _)  do "" end
+  defp search_row(list, col, :right) when col == length(list) do "" end
+  defp search_row(list, col, :right) do
+    {num_at_col,_} = Enum.at(list, col)
+    if Regex.match?(~r/\d/, num_at_col) do
+      find_nums_left(list, col-1)<> num_at_col <> find_nums_right(list, col+1)
     else
       find_nums_right(list, col+1)
     end
   end
-  def find_num_around(:around ,list, col) do
-    {num_at_col, _} = Enum.at(list, col)
-    case Regex.match?(~r/\d/,num_at_col) do
-      true -> find_nums_left(list, col-1) <> num_at_col  <> find_nums_right(list, col+1)
-      false ->
-        {num_before, _} = Enum.at(list, col-1)
-        {num_after, _} = Enum.at(list, col+1)
-        case {Regex.match?(~r/\d/,num_before), Regex.match?(~r/\d/,num_after)} do
-          {false, false} -> ""
-          {true, false} -> find_nums_left(list, col-2) <> num_before
-          {false, true} -> num_after <> find_nums_right(list, col+2)
-        end
+  defp search_row(list, col, :both) when col == length(list) do
+    find_nums_left(list,col-1)
+  end
+  defp search_row(list, col, :both) do
+    right_num = search_row(list, col, :right)
+    if String.length(right_num) > 0 do
+      right_num
+    else
+      find_nums_left(list, col-1)
     end
   end
-
 
   def find_nums_left(list, pos) when pos < 0 do "" end
   def find_nums_left(list, pos) do
