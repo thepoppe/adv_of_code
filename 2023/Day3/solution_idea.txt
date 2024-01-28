@@ -12,3 +12,16 @@ Start with row 0 and and jump until a number is found.
 Verify validity:
 When a number is found, look left look right while counting the length. 
 IF no symbol on left and right, verify validity on a row above and under on cols -1 to +1
+
+NOT WORKING:
+
+
+
+
+
+
+
+my answer      = 71065712
+my answer      = 78864296
+correct answer = 80694070
+
