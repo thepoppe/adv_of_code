@@ -7,7 +7,7 @@ defmodule Johan do
   end
 
   def task() do
-    rows = Enum.map(File.stream!("case1.txt"),  fn(row) -> parse(String.trim(row)) end)
+    rows = Enum.map(File.stream!("case2.txt"),  fn(row) -> parse(String.trim(row)) end)
     [one,two] = Enum.take(rows, 2)
     scanned = scan({[],[]}, one, two,  Stream.drop(rows, 2))
     Enum.sum(List.flatten(scanned))
