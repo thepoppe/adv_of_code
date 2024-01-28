@@ -25,3 +25,8 @@ my answer      = 71065712
 my answer      = 78864296
 correct answer = 80694070
 
+
+24-01-28:
+Code fails since for prev search nums_right(next, col +1) next should only be done if * is at the end
+Same for next. if * is at the end we check nums_right(prev, col +1)
+

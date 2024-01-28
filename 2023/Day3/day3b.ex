@@ -124,7 +124,8 @@ defmodule Task2 do
     next_row = iterate_until(list, row+1)
 
     num_in_same_row = find_nums_right(same_row, col+1)
-    num_in_prev_row = search_row(prev_row, col, :right)
+    #num_in_prev_row = search_row(prev_row, col, :right) #
+    num_in_prev_row = find_nums_right(prev_row, col+1)  #POSSIBLE SOl TO AVOID twocases code still fails...
     num_in_next_row = find_nums_right(next_row, col+1)
 
     #IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
