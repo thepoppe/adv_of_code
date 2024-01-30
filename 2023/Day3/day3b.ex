@@ -1,6 +1,6 @@
 defmodule Task2 do
   def main do
-    input = File.read!("case2.txt") |> String.split("\n")
+    input = File.read!("case1.txt") |> String.split("\n")
     {:parsed, grid} = Day3.parse_input(input)
     sum = iterate_rows(grid,0)
     {:ok, sum}
@@ -58,15 +58,30 @@ defmodule Task2 do
 
       {_, {row, col, true}, _} ->
         first_num = String.to_integer(number)
-        second_num =  String.to_integer(find_second_number(full_list, row, col, :prev))
-        #IO.inspect("sum2: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
-        sum + (first_num*second_num)
+        if col == (last_index+1) do
+          second_num =  String.to_integer(find_second_number(full_list, row, col, :prev))
+          #IO.inspect("sum2a: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
+          sum + (first_num * second_num)
+        else
+          second_num =  String.to_integer(find_second_number(full_list, row, col, :above))
+          #IO.inspect("sum2b: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
+          sum + (first_num * second_num)
+        end
+
 
       {_, _, {row, col, true}}->
         first_num = String.to_integer(number)
-        second_num =  String.to_integer(find_second_number(full_list, row, col, :next))
-        #IO.inspect("sum3: #{sum}, first num3: #{first_num}, second num3: #{second_num}")
-        sum + (first_num*second_num)
+        if col == (last_index+1) do
+          second_num =  String.to_integer(find_second_number(full_list, row, col, :next))
+          #IO.inspect("sum3a: #{sum}, first num3: #{first_num}, second num3: #{second_num}")
+          sum + (first_num * second_num)
+        else
+          second_num =  String.to_integer(find_second_number(full_list, row, col, :below))
+          #IO.inspect("sum3b: #{sum}, first num3: #{first_num}, second num3: #{second_num}")
+          sum + (first_num * second_num)
+        end
+
+
     end
   end
 
@@ -137,6 +152,21 @@ defmodule Task2 do
       _ -> {:error, "weird things happening in find second number :prev"}
     end
   end
+  def find_second_number(list, row, col, :above) do
+    same_row = iterate_until(list, row)
+    prev_row =iterate_until(list, row-1)
+
+    num_in_same_row = find_nums_right(same_row, col+1)
+    num_in_prev_row = find_nums_right(prev_row, col+1)  #POSSIBLE SOl TO AVOID twocases code still fails...
+
+    #IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
+    case {num_in_same_row, num_in_prev_row,} do
+      {"",""} -> "0"
+      {_,""} -> num_in_same_row
+      {"", _} -> num_in_prev_row
+      _ -> {:error, "weird things happening in find second number :above"}
+    end
+  end
 
   def find_second_number(list, row, col, :next) do
     same_row = iterate_until(list, row)
@@ -157,6 +187,24 @@ defmodule Task2 do
       {"", _, ""} -> num_in_prev_row
       {"","", _} -> num_in_next_row
       _ -> {:error, "weird things happening in find second number :next"}
+    end
+  end
+  def find_second_number(list, row, col, :below) do
+    same_row = iterate_until(list, row)
+    next_row = iterate_until(list, row+1)
+
+    num_in_same_row = case {find_nums_left(same_row, col-1), find_nums_right(same_row, col+1)} do
+      {"", ""} -> ""
+      {num, ""} -> num
+      {"", num} -> num
+    end
+    num_in_next_row = search_row(next_row, col, :both) #NEW
+
+    case {num_in_same_row,  num_in_next_row} do
+      {"",""} -> "0"
+      {_, ""} -> num_in_same_row
+      {"", _} -> num_in_next_row
+      _ -> {:error, "weird things happening in find second number :below"}
     end
   end
 
@@ -182,7 +230,7 @@ defmodule Task2 do
     end
   end
 
-  def find_nums_left(list, pos) when pos < 0 do "" end
+  def find_nums_left(_, pos) when pos < 0 do "" end
   def find_nums_left(list, pos) do
     {char, _} = Enum.at(list, pos)
     case Regex.match?(~r/\d/, char) do
