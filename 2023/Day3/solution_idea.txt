@@ -13,16 +13,11 @@ Verify validity:
 When a number is found, look left look right while counting the length. 
 IF no symbol on left and right, verify validity on a row above and under on cols -1 to +1
 
-NOT WORKING:
+NOT WORKING...
 
 
-
-
-
-
-
-my answer      = 71065712
-my answer      = 78864296
+my answer      = 71065712...
+my answer      = 78864296...
 correct answer = 80694070
 
 
@@ -30,3 +25,18 @@ correct answer = 80694070
 Code fails since for prev search nums_right(next, col +1) next should only be done if * is at the end
 Same for next. if * is at the end we check nums_right(prev, col +1)
 
+
+final solution for 3b.
+The idea is to check from left top to right bottom.
+if we have a num * we check above,below and to the right as 1. 
+If the star is on the previous row and on on step passed the last pos of the number we check +1 index to the right. 2.
+The last "next is adjacent catches the rest of the case where the * is at multiple places and find the next number 
+depedning on placement. 3a shows when the * is under/:below the number and all the way left to first index -1
+and doesnt check the row above the since that would crash with the org number.
+3b: is the case where the star is one pos behind the last number on a row below and all directions are checked.
+
+
+1:               2:                 3a:                 3b:
+    <-> ->             *  ->              num                 num    ->
+num  *  ->         num    ->          <- **** ->              <-  *  ->
+    <-> ->                            <-  <-> ->              <- <-> ->

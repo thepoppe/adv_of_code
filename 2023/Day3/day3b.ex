@@ -1,6 +1,6 @@
 defmodule Task2 do
   def main do
-    input = File.read!("case1.txt") |> String.split("\n")
+    input = File.read!("input.txt") |> String.split("\n")
     {:parsed, grid} = Day3.parse_input(input)
     sum = iterate_rows(grid,0)
     {:ok, sum}
@@ -44,8 +44,10 @@ defmodule Task2 do
     #case2
     prev_is_adjacent = verify_around(full_list, row-1, first_index, last_index+1);
     #case3
-    next_is_adjacent = verify_around(full_list, row+1, first_index, last_index+1)
-    IO.inspect("NEXT IS ADJACENT:#{inspect(next_is_adjacent)}")
+    next_is_adjacent = verify_around(full_list, row+1, first_index-1, last_index+1)
+    #IO.inspect("SAME IS ADJACENT:#{inspect(same_is_adjacent)}")
+    #IO.inspect("PREV IS ADJACENT:#{inspect(prev_is_adjacent)}")
+    #IO.inspect("NEXT IS ADJACENT:#{inspect(next_is_adjacent)}")
 
     #OBS THIS CASE OPERATOR MAY LEAVE THINGS OUT?????
     case {same_is_adjacent, prev_is_adjacent, next_is_adjacent} do
@@ -63,9 +65,10 @@ defmodule Task2 do
           #IO.inspect("sum2a: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
           sum + (first_num * second_num)
         else
-          second_num =  String.to_integer(find_second_number(full_list, row, col, :above))
+          #second_num =  String.to_integer(find_second_number(full_list, row, col, :above))
           #IO.inspect("sum2b: #{sum}, first num2: #{first_num}, second num2: #{second_num}")
-          sum + (first_num * second_num)
+          #sum + (first_num * second_num)
+          sum
         end
 
 
@@ -135,38 +138,37 @@ defmodule Task2 do
 
   def find_second_number(list, row, col, :prev) do
     same_row = iterate_until(list, row)
-    prev_row =iterate_until(list, row-1)
+    #prev_row =iterate_until(list, row-1)
     next_row = iterate_until(list, row+1)
 
     num_in_same_row = find_nums_right(same_row, col+1)
     #num_in_prev_row = search_row(prev_row, col, :right) #
-    num_in_prev_row = find_nums_right(prev_row, col+1)  #POSSIBLE SOl TO AVOID twocases code still fails...
+    #num_in_prev_row = find_nums_right(prev_row, col+1)  #POSSIBLE SOl TO AVOID twocases code still fails...
     num_in_next_row = find_nums_right(next_row, col+1)
 
     #IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
-    case {num_in_same_row, num_in_prev_row, num_in_next_row} do
+    case {num_in_same_row, "", num_in_next_row} do
       {"","",""} -> "0"
       {_,"",""} -> num_in_same_row
-      {"", _, ""} -> num_in_prev_row
+      {"", _, ""} -> "0"
       {"","", _} -> num_in_next_row
       _ -> {:error, "weird things happening in find second number :prev"}
     end
   end
-  def find_second_number(list, row, col, :above) do
-    same_row = iterate_until(list, row)
-    prev_row =iterate_until(list, row-1)
-
-    num_in_same_row = find_nums_right(same_row, col+1)
-    num_in_prev_row = find_nums_right(prev_row, col+1)  #POSSIBLE SOl TO AVOID twocases code still fails...
-
-    #IO.inspect(":around,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}, next:#{num_in_next_row}")
-    case {num_in_same_row, num_in_prev_row,} do
-      {"",""} -> "0"
-      {_,""} -> num_in_same_row
-      {"", _} -> num_in_prev_row
-      _ -> {:error, "weird things happening in find second number :above"}
-    end
-  end
+  #def find_second_number(list, row, col, :above) do
+  #  same_row = iterate_until(list, row)
+  #  prev_row =iterate_until(list, row-1)
+  #
+  #  num_in_same_row = find_nums_right(same_row, col+1)
+  #  num_in_prev_row = find_nums_right(prev_row, col+1)
+  #  IO.inspect(":above,#{row}, same:#{num_in_same_row}, prev:#{num_in_prev_row}")
+  #  case {num_in_same_row, num_in_prev_row,} do
+  #    {"",""} -> "0"
+  #    {_,""} -> num_in_same_row
+  #    {"", _} -> num_in_prev_row
+  #    _ -> {:error, "weird things happening in find second number :above"}
+  #  end
+  #end
 
   def find_second_number(list, row, col, :next) do
     same_row = iterate_until(list, row)
@@ -193,11 +195,7 @@ defmodule Task2 do
     same_row = iterate_until(list, row)
     next_row = iterate_until(list, row+1)
 
-    num_in_same_row = case {find_nums_left(same_row, col-1), find_nums_right(same_row, col+1)} do
-      {"", ""} -> ""
-      {num, ""} -> num
-      {"", num} -> num
-    end
+    num_in_same_row = find_nums_right(same_row, col+1)
     num_in_next_row = search_row(next_row, col, :both) #NEW
 
     case {num_in_same_row,  num_in_next_row} do
