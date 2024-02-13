@@ -3,6 +3,6 @@ defmodule Day12Test do
   doctest Day12
 
   test "greets the world" do
-   Day12.main()
+   Day12a.main()
   end
 end
