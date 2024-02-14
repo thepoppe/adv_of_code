@@ -1,34 +1,41 @@
 defmodule Day12b do
   def main do
-    {_, text} = File.read("all_known.txt");
+    {_, text} = File.read("full.txt");
     parsed = parse(text);
-    mem  = Mem.new();
-    {sum, mem} = Enum.reduce(parsed, {0, mem}, fn row, {sum, mem} -> check_row(row, sum, mem) end)
+    extended = Enum.map(parsed, fn {seq, map} ->
+      {seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq, map ++ map ++ map ++ map ++ map} end)
+    arrangements = Enum.map(extended, fn row -> check_row(row, Mem.new()) end)
+    sum = Enum.reduce(arrangements, 0, fn {arr,_}, acc -> arr+acc end)
     {:ok, sum};
   end
 
-  def check_row({[], []}, acc, mem) do {1, mem} end
-  def check_row({[], _}, acc, mem) do {0, mem} end
-  def check_row({["." | rest], []}, acc, mem) do check_mem({rest, []},acc, mem) end
-  def check_row({["." | rest], map}, acc, mem) do check_mem({rest, map}, acc, mem) end
-  def check_row({["#" | _], []}, acc, mem) do {acc, mem} end
-  def check_row({["#" | rest] , [h|t]}, acc, mem) do
+
+  def check_row({[], []},  mem) do {1, mem} end
+  def check_row({[], _},  mem) do {0, mem} end
+  def check_row({["." | rest], []},  mem) do check_mem({rest, []}, mem) end
+  def check_row({["." | rest], map},  mem) do check_mem({rest, map},  mem) end
+  def check_row({["#" | _], []},  mem) do {0, mem} end
+  def check_row({["#" | rest] , [h|t]},  mem) do
     case verify_next(rest, h-1) do
-      :fail -> {acc, mem}
-      {:ok, seq, :next} -> check_mem({seq, t}, acc, mem);
-      {:ok, seq, num} -> check_mem({seq, [num|t]}, acc, mem);
+      :fail -> {0, mem}
+      {:ok, seq, :next} -> check_mem({seq, t},  mem);
+      {:ok, seq, num} -> check_mem({seq, [num|t]},  mem);
     end
   end
-  def check_row({["?" | rest], map},acc, mem) do
-    {res, upd} = check_mem({["#" | rest], map}, acc, mem);
-    check_mem({["." | rest], map}, res, upd);
-  end
-  def check_row(_,acc, mem) do {0, mem} end
 
-  def check_mem(seq, acc, mem) do
+
+  def check_row({["?" | rest], map}, mem) do
+    {res, upd} = check_mem({["#" | rest], map}, mem);
+    {alt, mem} = check_mem({["." | rest], map}, upd);
+    {res+alt, mem}
+  end
+  def check_row(_, mem) do {0, mem} end
+
+
+  def check_mem(seq,  mem) do
     case Mem.lookup(mem, seq) do
       nil ->
-        {res, updated} = check_row(seq,acc,mem);
+        {res, updated} = check_row(seq,mem);
         {res, Mem.store(updated, seq, res)};
       {:found, val} ->
         {val, mem};
@@ -44,6 +51,7 @@ defmodule Day12b do
   def verify_next(["." | _], _)  do :fail end
   def verify_next(["#" | _], n) when n == 0  do :fail end
   def verify_next(seq = ["#" |_], n)  do {:ok, seq, n} end
+
 
   def parse(text) do
     list = String.split(text, "\r\n");
