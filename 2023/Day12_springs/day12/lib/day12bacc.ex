@@ -1,11 +1,12 @@
 defmodule Day12bacc do
   def main do
-    {_, text} = File.read("ex.txt");
+    {_, text} = File.read("full.txt");
     parsed = parse(text);
-    sum = Enum.reduce(parsed, 0, fn row, acc ->
-      {res, _} =  check_row(row, 0, Mem2.new());
-      acc + res
-    end)
+    extended = Enum.map(parsed, fn {seq, map} ->
+      {seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq, map ++ map ++ map ++ map ++ map} end);
+    sum = Enum.map(extended, fn row -> check_row(row, 0, Mem2.new()); end)
+    res = Enum.map(sum, fn {x,_} ->  x end)
+    sum = Enum.reduce(res, 0 , fn x, acc -> x + acc end)
     {:ok, sum};
   end
 
@@ -23,7 +24,8 @@ defmodule Day12bacc do
   end
   def check_row({["?" | rest], map},acc, mem) do
     {res, upd} = check_mem({["#" | rest], map}, acc, mem);
-    check_mem({["." | rest], map}, res, upd);
+    {alt, mem} = check_mem({["." | rest], map}, acc, upd);
+    {res+alt, mem}
   end
   def check_row(_, acc, mem) do {acc, mem} end
 
