@@ -24,3 +24,6 @@ day12-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+*.dat
+*.txt

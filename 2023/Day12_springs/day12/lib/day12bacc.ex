@@ -1,6 +1,6 @@
 defmodule Day12bacc do
   def main do
-    {_, text} = File.read("full.txt");
+    {_, text} = File.read("ex.txt");
     parsed = parse(text);
     extended = Enum.map(parsed, fn {seq, map} ->
       {seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq ++ ["?"] ++ seq, map ++ map ++ map ++ map ++ map} end);
