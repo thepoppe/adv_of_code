@@ -1,21 +1,21 @@
 defmodule Day7a do
-
+#MISSAT FALLET MED 2 pairs...
   def main do
     decks =
       File.read!("real.txt")
       |> parse()
       |> Enum.map(&evaluate_decks/1)
-      decks = Enum.sort(decks, &compare_results/2)
-      decks = Enum.reverse(decks)
+      |> Enum.sort(&compare_results/2)
       sum = calculate(decks, 1,0)
-    {length(decks), sum}
+    {decks, sum}
   end
 
   def calculate([],_,acc) do acc end
   def calculate([{_,_,{:bid, bid}}|t], rank, acc) do calculate(t, rank+1, acc + (rank * bid) ) end
 
-  def compare_results({{:type, type1}, _, _}, {{:type, type2}, _, _}) when type1 != type2 do type1 > type2 end
-  def compare_results({_, {_,s1}, _}, {_, {_,s2}, _}) do s1 >= s2 end
+  def compare_results({{_, t1}, _, _}, {{_, t2}, _, _}) when t1 < t2 do true end
+  def compare_results({type, {_, s1}, _}, {type, {_, s2}, _}) when s1 < s2 do true end
+  def compare_results(_, _) do false end
 
 
   def evaluate_decks({deck, bid}) do
@@ -27,7 +27,11 @@ defmodule Day7a do
         |> Enum.filter(fn {score, _valor} -> score == max end)
         |>  remove_smaller([])
         sum = Enum.reduce(pairs, 0, fn {_score, num}, acc -> acc + num end)
-        if max < 4 do {max, sum} else {max + 1, sum} end
+        if max == 1 do
+          {max, deck}
+        else
+          if max < 4 do {max, sum} else {max + 1, sum} end
+        end
       :yes ->
         {4, Enum.sum(deck)}
     end
@@ -40,11 +44,7 @@ defmodule Day7a do
     if num1 < num2 do
       acc
     else
-      if ( num1 > num2) do
-        remove_smaller(rest, [num])
-      else
-        remove_smaller(rest, [num | acc])
-      end
+      remove_smaller(rest, [num | acc])
     end
   end
 
@@ -70,8 +70,7 @@ defmodule Day7a do
           String.to_integer(str)
         else convert_chars(str)
         end
-        end)
-      |> Enum.sort(:desc),
+        end),
       String.to_integer(List.to_string(bid))}
     end)
 
