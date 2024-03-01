@@ -7,35 +7,37 @@ defmodule Day7a do
       |> Enum.map(&evaluate_decks/1)
       |> Enum.sort(&compare_results/2)
       sum = calculate(decks, 1,0)
-    {decks, sum}
+    {:ok, sum}
   end
 
   def calculate([],_,acc) do acc end
   def calculate([{_,_,{:bid, bid}}|t], rank, acc) do calculate(t, rank+1, acc + (rank * bid) ) end
 
-  def compare_results({{_, t1}, _, _}, {{_, t2}, _, _}) when t1 < t2 do true end
-  def compare_results({type, {_, s1}, _}, {type, {_, s2}, _}) when s1 < s2 do true end
+  def compare_results({{:score, s1}, _, _}, {{:score, s2}, _, _}) when s1 < s2 do true end
+  def compare_results({score, {:deck, [card_left|_]}, _}, {score, {:deck, [card_right|_]}, _}) when card_left < card_right do true end
+  def compare_results({score, {:deck, [card|tail_left]}, bid_left}, {score, {:deck, [card|tail_right]}, bid_right}) do
+    compare_results({score, {:deck, tail_left}, bid_left}, {score, {:deck, tail_right}, bid_right})
+  end
   def compare_results(_, _) do false end
 
 
   def evaluate_decks({deck, bid}) do
     score = Enum.map(deck, fn valor -> Enum.reduce(deck, 0, fn next, acc -> if next == valor do acc+1 else acc end end) end)
-    {score, sum} = case check_for_house(score, :zero) do
+    score = case check_for_house(score, :zero) do
       :no ->
         max = Enum.max(score)
         pairs = Enum.zip(score, deck)
         |> Enum.filter(fn {score, _valor} -> score == max end)
-        |>  remove_smaller([])
-        sum = Enum.reduce(pairs, 0, fn {_score, num}, acc -> acc + num end)
-        if max == 1 do
-          {max, deck}
-        else
-          if max < 4 do {max, sum} else {max + 1, sum} end
+        case max do
+          1 -> 0
+          2 -> if length(pairs)> 2 do 2 else 1 end
+          3 -> 3
+          4 -> 5
+          5 -> 6
         end
-      :yes ->
-        {4, Enum.sum(deck)}
+      :yes -> 4
     end
-    {{:type, score}, {:score, sum}, {:bid, bid}}
+    {{:score, score}, {:deck, deck}, {:bid, bid}}
   end
 
   def remove_smaller([], acc) do acc end
