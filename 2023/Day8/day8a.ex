@@ -1,7 +1,7 @@
 defmodule Day8a do
 
   def main do
-    {{:seq, seq}, {:map, ptrns},{:start, start}, {:dest, dest}} = Parser.parse_full
+    {:ok, seq, ptrns, {:start, start}, {:dest, dest}} = Parser.parse_full
     IO.inspect("Start #{start}, Dest #{dest}") #False done in 40 moves
     #from AAA to ZZZ not the first line to the last...
     search(seq, ptrns, "AAA", "ZZZ", seq, 0)

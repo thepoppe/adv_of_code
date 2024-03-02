@@ -6,6 +6,9 @@ defmodule Parser do
   def parse_ex2 do
     parse("ex2.txt")
   end
+  def parse_ex3 do
+    parse("ex3.txt")
+  end
   def parse_full do
     parse("full.txt")
   end
@@ -24,7 +27,7 @@ defmodule Parser do
       end)
 
       #So we are looking fo ZZZ not the last line... and start is also AAA. Complicating things too
-    {{:seq, sequence}, {:map, pattern_map}, {:start, String.to_atom(start)}, {:dest, String.to_atom(destination)}}
+    {:ok, sequence,  pattern_map, {:start, String.to_atom(start)}, {:dest, String.to_atom(destination)}}
   end
 end
 
