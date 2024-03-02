@@ -1,12 +1,10 @@
 defmodule Day7b do
 
-    def main do
-      decks =
-        File.read!("real.txt")
-        |> parse()
+    def main(decks) do
+      decks = decks
         |> Enum.map(&evaluate_deck/1)
         |> Enum.sort(&compare_results/2)
-        sum = calculate(decks, 1,0)
+        sum = calculate(decks, 1, 0)
       {:ok, sum}
     end
 
@@ -58,9 +56,7 @@ defmodule Day7b do
 
     def evaluate_deck({deck, bid}) do
       no_jokers = replace_jokers(deck)
-      IO.inspect(no_jokers)
       scores = Enum.map(no_jokers, fn valor -> Enum.reduce(no_jokers, 0, fn next, acc -> if next == valor do acc+1 else acc end end) end)
-      IO.inspect(scores)
       res = case check_for_house(scores, :zero) do
         :no ->
           max = Enum.max(scores)
