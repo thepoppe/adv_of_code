@@ -19,7 +19,7 @@ defmodule Parser do
       |> Enum.reduce({Map.new(), 0},fn ptr, {map, _} ->
         [key|[direction|[]]] = String.split(ptr, " = ", trim: true)
         [left|[right]] = String.split(String.slice(direction, 1..8), ", ")
-        map = Map.put(map, String.to_atom(key), {{:L, String.to_atom(left)}, {:R, String.to_atom(right)} })
+        map = Map.put(map, key, {{:L, left}, {:R, right} })
         {map, key}
       end)
 
