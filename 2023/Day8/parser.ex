@@ -27,19 +27,6 @@ defmodule Parser do
       end)
 
       #So we are looking fo ZZZ not the last line... and start is also AAA. Complicating things too
-    {:ok, sequence,  pattern_map, {:start, String.to_atom(start)}, {:dest, String.to_atom(destination)}}
+    {:ok, sequence,  pattern_map, {:start, start}, {:dest, destination}}
   end
 end
-
-#
-#{patterns, start, destination} = String.split(patterns, "\r\n")
-#|> Enum.reduce({Map.new(),:start, :dest},fn ptr, {map, start, _} ->
-#  [key|[direction|[]]] = String.split(ptr, " = ", trim: true)
-#  [left|[right]] = String.split(String.slice(direction, 1..8), ", ")
-#  map = Map.put(map, String.to_atom(key), {{:L, String.to_atom(left)}, {:R, String.to_atom(right)} })
-#  if(start == :start) do
-#    {map, key, key}
-#  else
-#    {map, start, key}
-#  end
-#end)
