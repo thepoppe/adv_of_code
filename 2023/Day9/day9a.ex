@@ -10,14 +10,13 @@ defmodule Day9a do
   end
 
   def find_history([], value) do value end
-  def find_history(list = [h|t], value) do
+  def find_history([h|t], value) do
     find_history(t, collect_last(h, value))
   end
 
   def collect_last([], value) do value end
   def collect_last([last], value) do last+value end
-  def collect_last([next|rest], value) do
-
+  def collect_last([_|rest], value) do
     collect_last(rest, value)
   end
 
