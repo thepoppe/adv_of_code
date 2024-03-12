@@ -1,5 +1,7 @@
 defmodule Day10 do
 
+
+  #https://adventofcode.com/2023/day/10
   def convert(c) do
     case c do
       "|" -> :vertical
